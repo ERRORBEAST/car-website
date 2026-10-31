@@ -1,0 +1,6 @@
+# Tools, binaries & logs
+tools/
+*.log
+*.zip
+.DS_Store
+Thumbs.db

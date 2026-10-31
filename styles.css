@@ -1,0 +1,1295 @@
+/* ==========================================================================
+   NOCTIS — Stylesheet
+   Pure CSS, flat minimal aesthetics, strict design system.
+   No gradients, no glassmorphism, no glows, no shadows, no rounded cards.
+   ========================================================================== */
+
+/* Google Fonts: Archivo (expanded width), Inter, JetBrains Mono */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,300;125,400&family=Inter:wght@400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Design Tokens */
+  --asphalt: #07080A;
+  --graphite: #121418;
+  --fog: #8A8F98;
+  --bone: #EDEAE4;
+  --xenon: #CFE3FF;
+  --taillight: #E1251B;
+  --hairline: rgba(237, 234, 228, 0.12);
+  --hairline-solid: #1b1e24;
+
+  /* Typography */
+  --font-display: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Easing */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-default: 0.7s;
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0; /* Strictly no rounded bubbly shapes */
+}
+
+html, body {
+  width: 100%;
+  background-color: var(--asphalt);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip; /* Crucial: never use overflow: hidden here as it breaks sticky */
+  position: relative;
+}
+
+/* Custom Scrollbar (minimal hairline) */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--asphalt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--graphite);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fog);
+}
+
+/* Utility / Typography Classes */
+.font-display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: clamp(40px, 7vw, 120px);
+  line-height: 0.95;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.text-fog {
+  color: var(--fog);
+}
+
+.text-xenon {
+  color: var(--xenon);
+}
+
+.text-bone {
+  color: var(--bone);
+}
+
+.hairline-border-b {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.hairline-border-t {
+  border-top: 1px solid var(--hairline);
+}
+
+/* ==========================================================================
+   Film-Grain Canvas Overlay (Fixed, 3.5% opacity, random shift)
+   ========================================================================== */
+#grain-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.035;
+}
+
+/* ==========================================================================
+   Custom Cursor ("The Headlight", desktop only)
+   ========================================================================== */
+@media (pointer: fine) {
+  body:not(.reduced-motion) {
+    cursor: none;
+  }
+
+  body:not(.reduced-motion) a,
+  body:not(.reduced-motion) button,
+  body:not(.reduced-motion) [role="button"],
+  body:not(.reduced-motion) input {
+    cursor: none;
+  }
+
+  #custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    will-change: transform;
+    display: flex;
+    align-items: center;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Normal Mode: 6px solid dot inside 28px ring */
+  .cursor-ring {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--xenon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.25s var(--ease), height 0.25s var(--ease), border-color 0.15s var(--ease);
+  }
+
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--xenon);
+    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+
+  .cursor-label {
+    margin-left: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--xenon);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+    pointer-events: none;
+  }
+
+  /* Morph Mode (over links, buttons, lineup): 44x2px light bar */
+  #custom-cursor.morph .cursor-ring {
+    width: 44px;
+    height: 2px;
+    background-color: var(--xenon);
+    border: none;
+  }
+
+  #custom-cursor.morph .cursor-dot {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  #custom-cursor.morph .cursor-label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Mousedown flash: turns brighter for 120ms */
+  #custom-cursor.active .cursor-ring,
+  #custom-cursor.active .cursor-dot,
+  #custom-cursor.active .cursor-label {
+    filter: brightness(1.6);
+  }
+}
+
+@media (pointer: coarse) {
+  #custom-cursor {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Preloader
+   ========================================================================== */
+#preloader {
+  position: fixed;
+  inset: 0;
+  background-color: var(--asphalt);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s var(--ease), visibility 0.6s var(--ease);
+}
+
+#preloader.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-brand {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(32px, 5vw, 64px);
+  letter-spacing: 0.08em;
+  color: var(--bone);
+  margin-bottom: 24px;
+}
+
+.preloader-track {
+  width: 240px;
+  height: 1px;
+  background-color: var(--hairline);
+  position: relative;
+  overflow: visible;
+}
+
+.preloader-bar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 1px;
+  background-color: var(--xenon);
+  transition: width 0.1s linear;
+}
+
+#preloader.exit .preloader-bar {
+  background-color: #FFFFFF;
+  box-shadow: none; /* strictly no glows */
+}
+
+.preloader-count {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fog);
+  letter-spacing: 0.15em;
+}
+
+/* ==========================================================================
+   Navigation (Fixed, difference blend, hides on scroll down)
+   ========================================================================== */
+#site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  mix-blend-mode: difference;
+  transition: transform 0.4s var(--ease);
+}
+
+#site-nav.nav-hidden {
+  transform: translateY(-100%);
+}
+
+.nav-brand {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #FFFFFF;
+  text-decoration: none;
+  position: relative;
+  padding: 4px 0;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 1px;
+  background-color: #FFFFFF;
+  transition: width 0.3s var(--ease);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  #site-nav {
+    padding: 0 20px;
+    height: 56px;
+  }
+  .nav-links {
+    gap: 16px;
+  }
+}
+
+/* ==========================================================================
+   Pinned Scrollytelling Sections (Hero & Dismantle)
+   ========================================================================== */
+.pinned-wrapper {
+  position: relative;
+  width: 100%;
+  /* Height is assigned inline via config.js */
+}
+
+.pinned-stage {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background-color: var(--asphalt);
+}
+
+.scrolly-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Pinned Section Bottom Progress Line (1px xenon line filling with scroll) */
+.stage-progress-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--hairline);
+  z-index: 20;
+}
+
+.stage-progress-fill {
+  width: 0%;
+  height: 100%;
+  background-color: var(--xenon);
+}
+
+/* Left-Edge HUD (Hero) */
+.hud-left {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 40px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--fog);
+  pointer-events: none;
+}
+
+.hud-chapter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-tick {
+  width: 4px;
+  height: 4px;
+  background-color: var(--taillight);
+  display: inline-block;
+}
+
+.hud-chapter-text {
+  color: var(--bone);
+}
+
+.hud-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-metric-label {
+  font-size: 9px;
+  color: var(--fog);
+}
+
+.hud-metric-value {
+  color: var(--bone);
+}
+
+@media (max-width: 768px) {
+  .hud-left {
+    left: 20px;
+    top: auto;
+    bottom: 24px;
+    transform: none;
+    flex-direction: row;
+    gap: 16px;
+  }
+}
+
+/* Hero Chapters Text Container (placed in sky, never over the car) */
+.hero-chapters-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.hero-chapter {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 1100px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s var(--ease), visibility 0.4s var(--ease);
+  pointer-events: none;
+}
+
+.hero-chapter.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Line-by-line reveal masks */
+.line-mask {
+  overflow: hidden;
+  display: block;
+}
+
+.line-inner {
+  display: block;
+  transform: translateY(100%);
+  transition: transform 0.9s var(--ease);
+}
+
+.active .line-inner,
+.revealed .line-inner {
+  transform: translateY(0);
+}
+
+.stagger-1 { transition-delay: 0.00s; }
+.stagger-2 { transition-delay: 0.08s; }
+.stagger-3 { transition-delay: 0.16s; }
+.stagger-4 { transition-delay: 0.24s; }
+
+/* Chapter 1: NOCTIS + hint */
+.hero-title-main {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(48px, 9vw, 130px);
+  letter-spacing: 0.04em;
+  color: var(--bone);
+  line-height: 0.95;
+  margin-bottom: 12px;
+}
+
+.hero-subtitle {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.8vw, 20px);
+  color: var(--fog);
+  margin-bottom: 28px;
+}
+
+.hero-scroll-hint {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--xenon);
+}
+
+.hint-line {
+  width: 1px;
+  height: 24px;
+  background-color: var(--xenon);
+  animation: pulseLine 2s infinite ease-in-out;
+}
+
+@keyframes pulseLine {
+  0%, 100% { opacity: 0.2; transform: scaleY(0.6); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* Chapter 2 & 3: Quiet philosophical statements */
+.hero-statement-title {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(32px, 5.5vw, 76px);
+  line-height: 1.05;
+  color: var(--bone);
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* Chapter 4: GT-E Specs */
+.hero-gte-title {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 400;
+  font-size: clamp(44px, 8vw, 110px);
+  color: var(--bone);
+  margin-bottom: 8px;
+}
+
+.hero-gte-specs {
+  font-family: var(--font-mono);
+  font-size: clamp(11px, 1.2vw, 13px);
+  letter-spacing: 0.14em;
+  color: var(--xenon);
+  margin-bottom: 24px;
+}
+
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--bone);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 4px;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.cta-link:hover {
+  color: var(--xenon);
+  border-color: var(--xenon);
+}
+
+/* ==========================================================================
+   Section 2: Statement (Not pinned, 100vh, word-by-word reveal)
+   ========================================================================== */
+#section-statement {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  background-color: var(--asphalt);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.statement-content {
+  max-width: 1000px;
+  text-align: center;
+}
+
+.statement-eyebrow {
+  margin-bottom: 28px;
+  color: var(--fog);
+}
+
+.statement-sentence {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(32px, 5.5vw, 76px);
+  line-height: 1.15;
+  color: var(--bone);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.word-span {
+  display: inline-block;
+  opacity: 0.15;
+  transition: opacity 0.3s var(--ease);
+  will-change: opacity;
+}
+
+/* ==========================================================================
+   Section 3: Dismantle (Pinned, ~350vh)
+   ========================================================================== */
+.dismantle-title-overlay {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.dismantle-callouts-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.dismantle-callout {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+  pointer-events: auto;
+}
+
+.dismantle-callout.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Callout Anchor Dot (1px xenon line & dot on part) */
+.callout-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--xenon);
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.callout-svg-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.callout-box {
+  position: absolute;
+  width: 240px;
+  padding: 8px 12px;
+  background-color: var(--graphite);
+  border: 1px solid var(--hairline);
+}
+
+.callout-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--xenon);
+  margin-bottom: 2px;
+}
+
+.callout-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--bone);
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .callout-box {
+    width: 180px;
+    padding: 6px 10px;
+  }
+  .callout-title {
+    font-size: 10px;
+  }
+  .callout-desc {
+    font-size: 12px;
+  }
+}
+
+/* ==========================================================================
+   Section 4: Lineup (Hover Accordion, not pinned, 100vh)
+   ========================================================================== */
+#section-lineup {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--asphalt);
+  padding: 60px 0 0 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.lineup-header {
+  padding: 0 40px 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lineup-eyebrow {
+  color: var(--fog);
+}
+
+.lineup-heading {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(28px, 4vw, 54px);
+  color: var(--bone);
+  text-transform: uppercase;
+}
+
+.lineup-accordion {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 170px);
+  min-height: 540px;
+  position: relative;
+}
+
+.lineup-slide {
+  position: relative;
+  height: 100%;
+  flex: 1 1 0%;
+  min-width: 0;
+  background-color: var(--asphalt);
+  border-right: 1px solid var(--hairline);
+  transition: flex 0.7s var(--ease), background-color 0.4s var(--ease);
+  overflow: hidden;
+  cursor: pointer;
+  border-top: 1px solid var(--hairline);
+  border-bottom: none;
+  border-left: none;
+  text-align: left;
+  outline: none;
+}
+
+.lineup-slide:first-child {
+  border-left: 1px solid var(--hairline);
+}
+
+/* Open slide takes dominant width */
+.lineup-slide[aria-expanded="true"] {
+  flex: 4 1 0%;
+  background-color: var(--graphite);
+}
+
+/* Closed View Elements */
+.slide-closed-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 16px;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.slide-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fog);
+}
+
+.slide-rotated-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--bone);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  margin-bottom: 20px;
+}
+
+/* Closed car preview: cropped tight, 25% brightness, greyscale */
+.slide-closed-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  filter: grayscale(100%) brightness(25%);
+  transition: opacity 0.5s var(--ease);
+  pointer-events: none;
+}
+
+.lineup-slide[aria-expanded="true"] .slide-closed-content,
+.lineup-slide[aria-expanded="true"] .slide-closed-img {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Open View Elements */
+.slide-open-content {
+  position: absolute;
+  inset: 0;
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease) 0.1s, visibility 0.5s var(--ease);
+  z-index: 10;
+}
+
+.lineup-slide[aria-expanded="true"] .slide-open-content {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.open-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.open-model-name {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 68px);
+  color: var(--bone);
+  line-height: 1;
+}
+
+.open-model-tagline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--fog);
+  margin-top: 6px;
+}
+
+/* Shared Floor Line at 72% height */
+.lineup-floor-line {
+  position: absolute;
+  top: 72%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--hairline);
+  z-index: 2;
+}
+
+/* Open Car Image */
+.open-car-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.open-car-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center 72%;
+  transform: translateX(-6%);
+  opacity: 0;
+  transition: transform 0.7s var(--ease), opacity 0.5s var(--ease);
+}
+
+.lineup-slide[aria-expanded="true"] .open-car-img {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Open Bottom Controls */
+.open-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 600px;
+}
+
+.open-desc {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--bone);
+  line-height: 1.5;
+}
+
+.open-specs-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.spec-col-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--fog);
+  margin-bottom: 2px;
+}
+
+.spec-col-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--bone);
+}
+
+.open-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.swatches-row {
+  display: flex;
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 12px;
+  height: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+
+.color-swatch.active {
+  border-color: var(--bone);
+}
+
+.open-configure-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--xenon);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s var(--ease);
+}
+
+.open-configure-btn:hover {
+  border-color: var(--xenon);
+}
+
+/* Initial scroll reveal for slides */
+.lineup-slide {
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform 0.8s var(--ease), opacity 0.8s var(--ease), flex 0.7s var(--ease);
+}
+
+.lineup-revealed .lineup-slide {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.lineup-slide:nth-child(1) { transition-delay: 0.00s; }
+.lineup-slide:nth-child(2) { transition-delay: 0.08s; }
+.lineup-slide:nth-child(3) { transition-delay: 0.16s; }
+.lineup-slide:nth-child(4) { transition-delay: 0.24s; }
+.lineup-slide:nth-child(5) { transition-delay: 0.32s; }
+
+/* Mobile Accordion (< 768px): Vertical Stack of 72px rows */
+@media (max-width: 768px) {
+  .lineup-accordion {
+    flex-direction: column;
+    height: auto;
+    min-height: unset;
+  }
+
+  .lineup-slide {
+    width: 100%;
+    min-height: 72px;
+    height: 72px;
+    flex: none !important;
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .lineup-slide[aria-expanded="true"] {
+    height: auto;
+    min-height: 480px;
+  }
+
+  .slide-closed-content {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  .slide-rotated-name {
+    writing-mode: horizontal-tb;
+    transform: none;
+    margin-bottom: 0;
+  }
+
+  .slide-open-content {
+    position: relative;
+    inset: auto;
+    padding: 24px 20px;
+  }
+
+  .open-car-container {
+    position: relative;
+    height: 180px;
+    margin: 16px 0;
+  }
+
+  .open-car-img {
+    position: relative;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Section 5: Reserve (100vh, centred, xenon outline button)
+   ========================================================================== */
+#section-reserve {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--asphalt);
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.reserve-content {
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.reserve-heading {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 300;
+  font-size: clamp(38px, 6vw, 84px);
+  color: var(--bone);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.reserve-body {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.2vw, 17px);
+  color: var(--fog);
+  max-width: 48ch;
+}
+
+/* Thin xenon outline button */
+.reserve-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 36px;
+  border: 1px solid var(--xenon);
+  background: transparent;
+  color: var(--xenon);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
+  margin-top: 12px;
+}
+
+/* 2px taillight-red tick appearing at the left on hover */
+.reserve-tick {
+  position: absolute;
+  left: 12px;
+  width: 2px;
+  height: 12px;
+  background-color: var(--taillight);
+  opacity: 0;
+  transform: scaleY(0);
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.reserve-btn:hover {
+  background-color: var(--xenon);
+  color: var(--asphalt);
+}
+
+.reserve-btn:hover .reserve-tick {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+#site-footer {
+  border-top: 1px solid var(--hairline);
+  background-color: var(--asphalt);
+  padding: 60px 40px 40px 40px;
+}
+
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.footer-wordmark {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color: var(--bone);
+}
+
+.footer-columns {
+  display: flex;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col-heading {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--fog);
+  margin-bottom: 4px;
+}
+
+.footer-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--bone);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+
+.footer-link:hover {
+  color: var(--xenon);
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--fog);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  #site-footer {
+    padding: 40px 20px 30px 20px;
+  }
+  .footer-columns {
+    gap: 32px;
+  }
+}
+
+/* ==========================================================================
+   Accessibility & prefers-reduced-motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    cursor: auto !important;
+  }
+
+  #custom-cursor {
+    display: none !important;
+  }
+
+  .pinned-wrapper {
+    height: auto !important;
+  }
+
+  .pinned-stage {
+    position: relative !important;
+    height: auto !important;
+    min-height: 100vh;
+  }
+
+  .hero-chapter {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 80px auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .line-inner {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .word-span {
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .lineup-slide {
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+
+  .hint-line {
+    animation: none !important;
+  }
+}
+
+/* Focus Visible (accessibility using xenon light bar signature) */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+.lineup-slide:focus-visible {
+  outline: 1px solid var(--xenon);
+  outline-offset: 4px;
+}
+
